@@ -27,9 +27,8 @@ public class FiniteAutomaton
         
         foreach (var c in str)
         {
-            //Console.Write($"{_currentState} -> {c} -> ");
             _currentState = GetNextState(c);
-            //Console.WriteLine($"{_currentState}");
+            
             switch (_currentState)
             {
                 case AutomatonState.Init:
@@ -52,6 +51,7 @@ public class FiniteAutomaton
                     break;
 
                 case AutomatonState.PreShield:
+                    tokens.Add(new Token(TokenType.String, tokenValue.ToString()));
                     break;
                 
                 case AutomatonState.Shield:
@@ -65,6 +65,10 @@ public class FiniteAutomaton
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        if (_currentState == AutomatonState.FieldName) throw new InvalidStringException();
+        
+        tokens.Add(new Token(TokenType.String, tokenValue.ToString()));
 
         return tokens;
     }
