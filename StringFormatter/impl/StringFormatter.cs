@@ -1,12 +1,16 @@
-﻿using System.Text;
+﻿using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using System.Text;
 using StringFormatter.impl.Automaton;
 
 namespace StringFormatter.impl;
 
 public class StringFormatter : IStringFormatter
 {
-    public static readonly StringFormatter Shared = new ();
-    private readonly FiniteAutomaton _parser = new ();
+    public static readonly StringFormatter Shared = new();
+    private readonly FiniteAutomaton _parser = new();
+    private static readonly ConcurrentDictionary<Expression<Func<object, string>>, Func<object, string>> Cache = new();
+
     public string Format(string template, object target)
     {
         var tokens = _parser.ParseString(template);
@@ -32,9 +36,16 @@ public class StringFormatter : IStringFormatter
 
     private string GetStringFieldValue(string fieldName, object target)
     {
-        var type = target.GetType();
-        var field = type.GetProperty(fieldName);
-        var value = field?.GetValue(target);
-        return value.ToString();
+        return GetCachedFunc(fieldName, target).Invoke(target);
+    }
+
+    private Func<object, string> GetCachedFunc(string fieldName, object target)
+    {
+        var param = Expression.Parameter(typeof(object));
+        var cast = Expression.Convert(param, target.GetType());
+        var prop = Expression.PropertyOrField(cast, fieldName);
+        var methodCall = Expression.Call(prop, "ToString", null);
+        var expr = Expression.Lambda<Func<object, string>>(methodCall, param);
+        return Cache.GetOrAdd(expr, k => k.Compile());
     }
 }
