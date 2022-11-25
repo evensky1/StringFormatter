@@ -8,8 +8,8 @@ public class FiniteAutomaton
     
     private readonly AutomatonState[,] _transitionMatrix = 
     {
-        { AutomatonState.PreFieldName, AutomatonState.Shield, AutomatonState.Exception, AutomatonState.Init, AutomatonState.Exception, AutomatonState.Init, AutomatonState.Init},
-        { AutomatonState.PreShield, AutomatonState.Exception, AutomatonState.EndField, AutomatonState.Init, AutomatonState.Shield, AutomatonState.Init,  AutomatonState.Init},
+        { AutomatonState.PreFieldName, AutomatonState.Escape, AutomatonState.Exception, AutomatonState.Init, AutomatonState.Exception, AutomatonState.Init, AutomatonState.Init},
+        { AutomatonState.PreEscape, AutomatonState.Exception, AutomatonState.EndField, AutomatonState.Init, AutomatonState.Escape, AutomatonState.Init,  AutomatonState.Init},
         { AutomatonState.Init, AutomatonState.FieldName, AutomatonState.FieldName, AutomatonState.Init, AutomatonState.Exception, AutomatonState.Init,  AutomatonState.Init}
     };
 
@@ -24,6 +24,7 @@ public class FiniteAutomaton
     {
         var tokens = new List<Token>();
         var tokenValue = new StringBuilder();
+        _currentState = AutomatonState.Init;
         
         foreach (var c in str)
         {
@@ -50,11 +51,11 @@ public class FiniteAutomaton
                     _currentState = AutomatonState.Init;
                     break;
 
-                case AutomatonState.PreShield:
+                case AutomatonState.PreEscape:
                     tokens.Add(new Token(TokenType.String, tokenValue.ToString()));
                     break;
                 
-                case AutomatonState.Shield:
+                case AutomatonState.Escape:
                     tokens.Add(new Token(TokenType.String, c.ToString()));
                     tokenValue.Clear();
                     _currentState = AutomatonState.Init;

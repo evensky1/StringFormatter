@@ -6,7 +6,7 @@ public enum AutomatonState
     PreFieldName,
     FieldName,
     EndField,
-    PreShield,
-    Shield,
+    PreEscape,
+    Escape,
     Exception
 }
