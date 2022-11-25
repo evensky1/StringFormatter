@@ -66,7 +66,7 @@ public class FiniteAutomaton
             }
         }
 
-        if (_currentState == AutomatonState.FieldName) throw new InvalidStringException();
+        if (_currentState != AutomatonState.Init) throw new InvalidStringException();
         
         tokens.Add(new Token(TokenType.String, tokenValue.ToString()));
 
